@@ -557,7 +557,6 @@
 
         this.copyTouchKeys(event);
 
-        console.log("test");
         event.stopPropagation();
 
         this.moved = false;
