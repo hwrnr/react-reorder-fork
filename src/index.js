@@ -1,26 +1,31 @@
-'use strict';
+"use strict";
 
 (function () {
-
   var CONSTANTS = {
     HOLD_THRESHOLD: 8,
-    SCROLL_INTERVAL: 1000 / 60,
+    SCROLL_INTERVAL: 1000 / 6,
     SCROLL_AREA_MAX: 50,
-    SCROLL_SPEED: 20
+    SCROLL_SPEED: 20,
   };
 
   var downPos = null;
   var mouseOffset = null;
   var mouseDown = null;
 
-  function createOffsetStyles (event, props) {
-    var top = (!props.lock || props.lock === 'horizontal') ? mouseOffset.clientY - mouseDown.clientY : 0;
-    var left = (!props.lock || props.lock === 'vertical') ? mouseOffset.clientX - mouseDown.clientX : 0;
+  function createOffsetStyles(event, props) {
+    var top =
+      !props.lock || props.lock === "horizontal"
+        ? mouseOffset.clientY - mouseDown.clientY
+        : 0;
+    var left =
+      !props.lock || props.lock === "vertical"
+        ? mouseOffset.clientX - mouseDown.clientX
+        : 0;
 
-    return 'translate(' + left + 'px,' + top + 'px)';
+    return "translate(" + left + "px," + top + "px)";
   }
 
-  function getScrollOffsetX (rect, node) {
+  function getScrollOffsetX(rect, node) {
     var positionInScrollArea;
     var scrollLeft = node.scrollLeft;
     var scrollWidth = node.scrollWidth;
@@ -28,19 +33,28 @@
     var scrollAreaX = Math.min(rect.width / 3, CONSTANTS.SCROLL_AREA_MAX);
 
     if (scrollLeft > 0 && mouseOffset.clientX <= rect.left + scrollAreaX) {
-      positionInScrollArea = Math.min(Math.abs(rect.left + scrollAreaX - mouseOffset.clientX), scrollAreaX);
-      return -positionInScrollArea / scrollAreaX * CONSTANTS.SCROLL_SPEED;
+      positionInScrollArea = Math.min(
+        Math.abs(rect.left + scrollAreaX - mouseOffset.clientX),
+        scrollAreaX
+      );
+      return (-positionInScrollArea / scrollAreaX) * CONSTANTS.SCROLL_SPEED;
     }
 
-    if (scrollLeft < scrollWidth - rect.width && mouseOffset.clientX >= rect.right - scrollAreaX) {
-      positionInScrollArea = Math.min(Math.abs(rect.right - scrollAreaX - mouseOffset.clientX), scrollAreaX);
-      return positionInScrollArea / scrollAreaX * CONSTANTS.SCROLL_SPEED;
+    if (
+      scrollLeft < scrollWidth - rect.width &&
+      mouseOffset.clientX >= rect.right - scrollAreaX
+    ) {
+      positionInScrollArea = Math.min(
+        Math.abs(rect.right - scrollAreaX - mouseOffset.clientX),
+        scrollAreaX
+      );
+      return (positionInScrollArea / scrollAreaX) * CONSTANTS.SCROLL_SPEED;
     }
 
     return 0;
   }
 
-  function getScrollOffsetY (rect, node) {
+  function getScrollOffsetY(rect, node) {
     var positionInScrollArea;
     var scrollTop = node.scrollTop;
     var scrollHeight = node.scrollHeight;
@@ -48,20 +62,31 @@
     var scrollAreaY = Math.min(rect.height / 3, CONSTANTS.SCROLL_AREA_MAX);
 
     if (scrollTop > 0 && mouseOffset.clientY <= rect.top + scrollAreaY) {
-      positionInScrollArea = Math.min(Math.abs(rect.top + scrollAreaY - mouseOffset.clientY), scrollAreaY);
-      return -positionInScrollArea / scrollAreaY * CONSTANTS.SCROLL_SPEED;
+      positionInScrollArea = Math.min(
+        Math.abs(rect.top + scrollAreaY - mouseOffset.clientY),
+        scrollAreaY
+      );
+      return (-positionInScrollArea / scrollAreaY) * CONSTANTS.SCROLL_SPEED;
     }
 
-    if (scrollTop < scrollHeight - rect.height && mouseOffset.clientY >= rect.bottom - scrollAreaY) {
-      positionInScrollArea = Math.min(Math.abs(rect.bottom - scrollAreaY - mouseOffset.clientY), scrollAreaY);
-      return positionInScrollArea / scrollAreaY * CONSTANTS.SCROLL_SPEED;
+    if (
+      scrollTop < scrollHeight - rect.height &&
+      mouseOffset.clientY >= rect.bottom - scrollAreaY
+    ) {
+      positionInScrollArea = Math.min(
+        Math.abs(rect.bottom - scrollAreaY - mouseOffset.clientY),
+        scrollAreaY
+      );
+      return (positionInScrollArea / scrollAreaY) * CONSTANTS.SCROLL_SPEED;
     }
 
     return 0;
   }
 
-  function scrollParentsX (node) {
+  function scrollParentsX(node) {
     var parent = node.parentNode;
+    console.log("Stvarno je ugašen");
+    return;
 
     while (parent && parent !== document) {
       var rect = parent.getBoundingClientRect();
@@ -79,8 +104,9 @@
     }
   }
 
-  function scrollParentsY (node) {
+  function scrollParentsY(node) {
     var parent = node.parentNode;
+    return;
 
     while (parent && parent !== document) {
       var rect = parent.getBoundingClientRect();
@@ -88,7 +114,7 @@
       var scrollOffsetY = getScrollOffsetY(rect, parent);
 
       if (!scrollOffsetY) {
-        scrollParentsX(parent);
+        scrollParentsY(parent);
       } else if (scrollOffsetY) {
         parent.scrollTop = parent.scrollTop + scrollOffsetY;
         return;
@@ -98,7 +124,7 @@
     }
   }
 
-  function Store () {
+  function Store() {
     var activeGroup = null;
     var draggedId = null;
     var placedId = null;
@@ -113,33 +139,35 @@
     var reorderComponents = {};
     var reorderGroups = {};
 
-    function autoScroll () {
+    function autoScroll() {
       if (target && target.props.autoScroll && target.rootNode) {
         var rect = target.rootNode.getBoundingClientRect();
 
-        if (target.props.lock !== 'horizontal') {
+        if (target.props.lock !== "horizontal") {
           var scrollOffsetX = getScrollOffsetX(rect, target.rootNode);
 
           if (target.props.autoScrollParents && !scrollOffsetX) {
             scrollParentsX(target.rootNode);
           } else if (scrollOffsetX) {
-            target.rootNode.scrollLeft = target.rootNode.scrollLeft + scrollOffsetX;
+            target.rootNode.scrollLeft =
+              target.rootNode.scrollLeft + scrollOffsetX;
           }
         }
 
-        if (target.props.lock !== 'vertical') {
+        if (target.props.lock !== "vertical") {
           var scrollOffsetY = getScrollOffsetY(rect, target.rootNode);
 
           if (target.props.autoScrollParents && !scrollOffsetY) {
             scrollParentsY(target.rootNode);
           } else if (scrollOffsetY) {
-            target.rootNode.scrollTop = target.rootNode.scrollTop + scrollOffsetY;
+            target.rootNode.scrollTop =
+              target.rootNode.scrollTop + scrollOffsetY;
           }
         }
       }
     }
 
-    function getState () {
+    function getState() {
       return {
         draggedId: draggedId,
         placedId: placedId,
@@ -147,11 +175,11 @@
         draggedStyle: draggedStyle,
         draggedIndex: draggedIndex,
         placedIndex: placedIndex,
-        draggedElement: draggedElement
+        draggedElement: draggedElement,
       };
     }
 
-    function trigger (clear) {
+    function trigger(clear) {
       var state = getState();
 
       if (clear) {
@@ -163,7 +191,7 @@
       reorderComponents[draggedId].setDragState(state);
     }
 
-    function triggerGroup (clear) {
+    function triggerGroup(clear) {
       var state = getState();
 
       if (clear) {
@@ -177,68 +205,92 @@
       }
     }
 
-    function validateComponentIdAndGroup (reorderId, reorderGroup) {
-      if (typeof reorderId !== 'string') {
-        throw new Error('Expected reorderId to be a string. Instead got ' + (typeof reorderId));
+    function validateComponentIdAndGroup(reorderId, reorderGroup) {
+      if (typeof reorderId !== "string") {
+        throw new Error(
+          "Expected reorderId to be a string. Instead got " + typeof reorderId
+        );
       }
 
-      if (typeof reorderGroup !== 'undefined' && typeof reorderGroup !== 'string') {
-        throw new Error('Expected reorderGroup to be a string. Instead got ' + (typeof reorderGroup));
+      if (
+        typeof reorderGroup !== "undefined" &&
+        typeof reorderGroup !== "string"
+      ) {
+        throw new Error(
+          "Expected reorderGroup to be a string. Instead got " +
+            typeof reorderGroup
+        );
       }
     }
 
-    function registerReorderComponent (component) {
+    function registerReorderComponent(component) {
       var reorderId = component.props.reorderId;
       var reorderGroup = component.props.reorderGroup;
 
       validateComponentIdAndGroup(reorderId, reorderGroup);
 
-      if (typeof reorderGroup !== 'undefined') {
-        if ((reorderGroup in reorderGroups) && (reorderId in reorderGroups[reorderGroup])) {
-          throw new Error('Duplicate reorderId: ' + reorderId + ' in reorderGroup: ' + reorderGroup);
+      if (typeof reorderGroup !== "undefined") {
+        if (
+          reorderGroup in reorderGroups &&
+          reorderId in reorderGroups[reorderGroup]
+        ) {
+          throw new Error(
+            "Duplicate reorderId: " +
+              reorderId +
+              " in reorderGroup: " +
+              reorderGroup
+          );
         }
 
         reorderGroups[reorderGroup] = reorderGroups[reorderGroup] || {};
         reorderGroups[reorderGroup][reorderId] = component;
       } else {
         if (reorderId in reorderComponents) {
-          throw new Error('Duplicate reorderId: ' + reorderId);
+          throw new Error("Duplicate reorderId: " + reorderId);
         }
 
         reorderComponents[reorderId] = component;
       }
     }
 
-    function unregisterReorderComponent (component) {
+    function unregisterReorderComponent(component) {
       var reorderId = component.props.reorderId;
       var reorderGroup = component.props.reorderGroup;
 
       validateComponentIdAndGroup(reorderId, reorderGroup);
 
-      if (typeof reorderGroup !== 'undefined') {
+      if (typeof reorderGroup !== "undefined") {
         if (!(reorderGroup in reorderGroups)) {
-          throw new Error('Unknown reorderGroup: ' + reorderGroup);
+          throw new Error("Unknown reorderGroup: " + reorderGroup);
         }
 
-        if ((reorderGroup in reorderGroups) && !(reorderId in reorderGroups[reorderGroup])) {
-          throw new Error('Unknown reorderId: ' + reorderId + ' in reorderGroup: ' + reorderGroup);
+        if (
+          reorderGroup in reorderGroups &&
+          !(reorderId in reorderGroups[reorderGroup])
+        ) {
+          throw new Error(
+            "Unknown reorderId: " +
+              reorderId +
+              " in reorderGroup: " +
+              reorderGroup
+          );
         }
 
         delete reorderGroups[reorderGroup][reorderId];
       } else {
         if (!(reorderId in reorderComponents)) {
-          throw new Error('Unknown reorderId: ' + reorderId);
+          throw new Error("Unknown reorderId: " + reorderId);
         }
 
         delete reorderComponents[reorderId];
       }
     }
 
-    function startDrag (reorderId, reorderGroup, index, element, component) {
+    function startDrag(reorderId, reorderGroup, index, element, component) {
       target = component;
 
       clearInterval(scrollInterval);
-      scrollInterval = setInterval(autoScroll, CONSTANTS.SCROLL_INTERVAL);
+      //scrollInterval = setInterval(autoScroll, CONSTANTS.SCROLL_INTERVAL);
 
       validateComponentIdAndGroup(reorderId, reorderGroup);
 
@@ -251,7 +303,7 @@
       placedId = reorderId;
       activeGroup = null;
 
-      if (typeof reorderGroup !== 'undefined') {
+      if (typeof reorderGroup !== "undefined") {
         activeGroup = reorderGroup;
 
         triggerGroup();
@@ -260,7 +312,7 @@
       }
     }
 
-    function stopDrag (reorderId, reorderGroup) {
+    function stopDrag(reorderId, reorderGroup) {
       target = null;
 
       clearInterval(scrollInterval);
@@ -275,7 +327,7 @@
           draggedElement = null;
 
           // These need to be cleared after trigger to allow state updates to these components
-          triggerGroup(['activeGroup']);
+          triggerGroup(["activeGroup"]);
 
           draggedId = null;
           placedId = null;
@@ -288,7 +340,7 @@
         draggedElement = null;
 
         // These need to be cleared after trigger to allow state updates to these components
-        trigger(['activeGroup']);
+        trigger(["activeGroup"]);
 
         draggedId = null;
         placedId = null;
@@ -296,12 +348,12 @@
       }
     }
 
-    function setPlacedIndex (reorderId, reorderGroup, index, component) {
+    function setPlacedIndex(reorderId, reorderGroup, index, component) {
       target = component;
 
       validateComponentIdAndGroup(reorderId, reorderGroup);
 
-      if (typeof reorderGroup !== 'undefined') {
+      if (typeof reorderGroup !== "undefined") {
         if (reorderGroup === activeGroup) {
           placedId = reorderId;
           placedIndex = index;
@@ -315,10 +367,10 @@
       }
     }
 
-    function setDraggedStyle (reorderId, reorderGroup, style) {
+    function setDraggedStyle(reorderId, reorderGroup, style) {
       validateComponentIdAndGroup(reorderId, reorderGroup);
 
-      if (typeof reorderGroup !== 'undefined') {
+      if (typeof reorderGroup !== "undefined") {
         if (reorderGroup === activeGroup) {
           draggedStyle = style;
 
@@ -342,7 +394,7 @@
 
   var store = new Store();
 
-  function reorder (list, previousIndex, nextIndex) {
+  function reorder(list, previousIndex, nextIndex) {
     var copy = [].concat(list);
     var item = copy.splice(previousIndex, 1)[0];
 
@@ -351,12 +403,12 @@
     return copy;
   }
 
-  function reorderImmutable (list, previousIndex, nextIndex) {
+  function reorderImmutable(list, previousIndex, nextIndex) {
     var item = list.get(previousIndex);
     return list.delete(previousIndex).splice(nextIndex, 0, item);
   }
 
-  function reorderFromTo (lists, previousIndex, nextIndex) {
+  function reorderFromTo(lists, previousIndex, nextIndex) {
     var previousList = [].concat(lists.from);
     var nextList = [].concat(lists.to);
 
@@ -365,20 +417,20 @@
 
     return {
       from: previousList,
-      to: nextList
+      to: nextList,
     };
   }
 
-  function reorderFromToImmutable (lists, previousIndex, nextIndex) {
+  function reorderFromToImmutable(lists, previousIndex, nextIndex) {
     var item = lists.from.get(previousIndex);
 
     return {
       from: lists.from.delete(previousIndex),
-      to: lists.to.splice(nextIndex, 0, item)
+      to: lists.to.splice(nextIndex, 0, item),
     };
   }
 
-  function withReorderMethods (Reorder) {
+  function withReorderMethods(Reorder) {
     Reorder.reorder = reorder;
     Reorder.reorderImmutable = reorderImmutable;
     Reorder.reorderFromTo = reorderFromTo;
@@ -386,7 +438,7 @@
     return Reorder;
   }
 
-  function assign () {
+  function assign() {
     var args = Array.prototype.slice.call(arguments);
 
     if (!args.length) {
@@ -410,10 +462,9 @@
     return obj;
   }
 
-  function getReorderComponent (React, ReactDOM, createReactClass, PropTypes) {
-
+  function getReorderComponent(React, ReactDOM, createReactClass, PropTypes) {
     var Reorder = createReactClass({
-      displayName: 'Reorder',
+      displayName: "Reorder",
 
       getInitialState: function () {
         return store.getState();
@@ -436,7 +487,10 @@
       },
 
       isInvolvedInDragging: function () {
-        return this.props.reorderId === this.state.draggedId || this.props.reorderGroup === this.state.activeGroup;
+        return (
+          this.props.reorderId === this.state.draggedId ||
+          this.props.reorderGroup === this.state.activeGroup
+        );
       },
 
       preventContextMenu: function (event) {
@@ -450,7 +504,7 @@
       },
 
       persistEvent: function (event) {
-        if (typeof event.persist === 'function') {
+        if (typeof event.persist === "function") {
           event.persist();
         }
       },
@@ -474,30 +528,33 @@
 
       findCollisionIndex: function (event, listElements) {
         for (var i = 0; i < listElements.length; i += 1) {
-          if (!listElements[i].getAttribute('data-placeholder') && !listElements[i].getAttribute('data-dragged')) {
-
+          if (
+            !listElements[i].getAttribute("data-placeholder") &&
+            !listElements[i].getAttribute("data-dragged")
+          ) {
             var rect = listElements[i].getBoundingClientRect();
 
             switch (this.props.lock) {
-              case 'horizontal':
+              case "horizontal":
                 if (this.yCollision(event, rect)) {
                   return i;
                 }
                 break;
-              case 'vertical':
+              case "vertical":
                 if (this.xCollision(event, rect)) {
                   return i;
                 }
                 break;
               default:
-                if (this.yCollision(event, rect) && this.xCollision(event, rect)) {
+                if (
+                  this.yCollision(event, rect) &&
+                  this.xCollision(event, rect)
+                ) {
                   return i;
                 }
                 break;
             }
-
           }
-
         }
 
         return -1;
@@ -509,9 +566,9 @@
       },
 
       getHoldTime: function (event) {
-        if (event.touches && typeof this.props.touchHoldTime !== 'undefined') {
+        if (event.touches && typeof this.props.touchHoldTime !== "undefined") {
           return parseInt(this.props.touchHoldTime, 10) || 0;
-        } else if (typeof this.props.mouseHoldTime !== 'undefined') {
+        } else if (typeof this.props.mouseHoldTime !== "undefined") {
           return parseInt(this.props.mouseHoldTime, 10) || 0;
         }
 
@@ -523,31 +580,41 @@
           var rect = target.getBoundingClientRect();
 
           var draggedStyle = {
-            position: 'fixed',
+            position: "fixed",
             top: rect.top,
             left: rect.left,
             width: rect.width,
-            height: rect.height
+            height: rect.height,
           };
 
-          store.startDrag(this.props.reorderId, this.props.reorderGroup, index, this.props.children[index], this);
-          store.setDraggedStyle(this.props.reorderId, this.props.reorderGroup, draggedStyle);
+          store.startDrag(
+            this.props.reorderId,
+            this.props.reorderGroup,
+            index,
+            this.props.children[index],
+            this
+          );
+          store.setDraggedStyle(
+            this.props.reorderId,
+            this.props.reorderGroup,
+            draggedStyle
+          );
 
           mouseOffset = {
             clientX: event.clientX,
-            clientY: event.clientY
+            clientY: event.clientY,
           };
 
           mouseDown = {
             clientX: event.clientX,
-            clientY: event.clientY
+            clientY: event.clientY,
           };
         }
       },
 
       // Begin dragging index, set initial drag style, set placeholder position, calculate mouse offset
       onItemDown: function (callback, index, event) {
-        if (typeof callback === 'function') {
+        if (typeof callback === "function") {
           callback(event);
         }
 
@@ -562,7 +629,7 @@
         this.moved = false;
         downPos = {
           clientX: event.clientX,
-          clientY: event.clientY
+          clientY: event.clientY,
         };
 
         var holdTime = this.getHoldTime(event);
@@ -570,7 +637,10 @@
 
         if (holdTime) {
           this.persistEvent(event);
-          this.holdTimeout = setTimeout(this.startDrag.bind(this, event, target, index), holdTime);
+          this.holdTimeout = setTimeout(
+            this.startDrag.bind(this, event, target, index),
+            holdTime
+          );
         } else {
           this.startDrag(event, target, index);
         }
@@ -588,13 +658,18 @@
 
           if (
             fromIndex >= 0 &&
-            (fromIndex !== toIndex || this.state.draggedId !== this.state.placedId) &&
-            typeof this.props.onReorder === 'function'
+            (fromIndex !== toIndex ||
+              this.state.draggedId !== this.state.placedId) &&
+            typeof this.props.onReorder === "function"
           ) {
             this.props.onReorder(
               event,
               fromIndex,
-              toIndex - (this.state.draggedId === this.state.placedId && fromIndex < toIndex ? 1 : 0),
+              toIndex -
+                (this.state.draggedId === this.state.placedId &&
+                fromIndex < toIndex
+                  ? 1
+                  : 0),
               this.state.draggedId,
               this.state.placedId
             );
@@ -611,10 +686,11 @@
         this.copyTouchKeys(event);
 
         if (
-          downPos && (
-            Math.abs(event.clientX - downPos.clientX) >= CONSTANTS.HOLD_THRESHOLD ||
-            Math.abs(event.clientY - downPos.clientY) >= CONSTANTS.HOLD_THRESHOLD
-          )
+          downPos &&
+          (Math.abs(event.clientX - downPos.clientX) >=
+            CONSTANTS.HOLD_THRESHOLD ||
+            Math.abs(event.clientY - downPos.clientY) >=
+              CONSTANTS.HOLD_THRESHOLD)
         ) {
           this.moved = true;
         }
@@ -625,7 +701,6 @@
           var element = this.rootNode;
 
           if (this.collidesWithElement(event, element)) {
-
             var children = element.childNodes;
             var collisionIndex = this.findCollisionIndex(event, children);
 
@@ -633,25 +708,40 @@
               collisionIndex <= this.props.children.length &&
               collisionIndex >= 0
             ) {
-              store.setPlacedIndex(this.props.reorderId, this.props.reorderGroup, collisionIndex, this);
+              store.setPlacedIndex(
+                this.props.reorderId,
+                this.props.reorderGroup,
+                collisionIndex,
+                this
+              );
             } else if (
-              typeof this.props.reorderGroup !== 'undefined' && // Is part of a group
-              (
-                (!this.props.children || !this.props.children.length) || // If all items removed
-                (this.isDraggingFrom() && this.props.children.length === 1) // If dragging back to a now empty list
-              )
+              typeof this.props.reorderGroup !== "undefined" && // Is part of a group
+              (!this.props.children ||
+                !this.props.children.length || // If all items removed
+                (this.isDraggingFrom() && this.props.children.length === 1)) // If dragging back to a now empty list
             ) {
-              store.setPlacedIndex(this.props.reorderId, this.props.reorderGroup, 0, this);
+              store.setPlacedIndex(
+                this.props.reorderId,
+                this.props.reorderGroup,
+                0,
+                this
+              );
             }
-
           }
 
-          this.state.draggedStyle.transform = createOffsetStyles(event, this.props);
-          store.setDraggedStyle(this.props.reorderId, this.props.reorderGroup, this.state.draggedStyle);
+          this.state.draggedStyle.transform = createOffsetStyles(
+            event,
+            this.props
+          );
+          store.setDraggedStyle(
+            this.props.reorderId,
+            this.props.reorderGroup,
+            this.state.draggedStyle
+          );
 
           mouseOffset = {
             clientX: event.clientX,
-            clientY: event.clientY
+            clientY: event.clientY,
           };
         }
       },
@@ -663,7 +753,9 @@
 
         var wasGroupDragged = !isGroupDragged && storedActiveGroup;
 
-        var isActiveGroup = isPartOfGroup && isGroupDragged &&
+        var isActiveGroup =
+          isPartOfGroup &&
+          isGroupDragged &&
           state.activeGroup === this.props.reorderGroup;
 
         var isDragged = this.props.reorderId === state.draggedId;
@@ -685,11 +777,19 @@
       // Add listeners and store root node
       componentDidMount: function () {
         store.registerReorderComponent(this);
-        window.addEventListener('mouseup', this.onWindowUp, {passive: false});
-        window.addEventListener('touchend', this.onWindowUp, {passive: false});
-        window.addEventListener('mousemove', this.onWindowMove, {passive: false});
-        window.addEventListener('touchmove', this.onWindowMove, {passive: false});
-        window.addEventListener('contextmenu', this.preventContextMenu, {passive: false});
+        window.addEventListener("mouseup", this.onWindowUp, { passive: false });
+        window.addEventListener("touchend", this.onWindowUp, {
+          passive: false,
+        });
+        window.addEventListener("mousemove", this.onWindowMove, {
+          passive: false,
+        });
+        window.addEventListener("touchmove", this.onWindowMove, {
+          passive: false,
+        });
+        window.addEventListener("contextmenu", this.preventContextMenu, {
+          passive: false,
+        });
         this.storeRootNode();
       },
 
@@ -698,56 +798,74 @@
         store.unregisterReorderComponent(this);
         clearTimeout(this.holdTimeout);
 
-        window.removeEventListener('mouseup', this.onWindowUp);
-        window.removeEventListener('touchend', this.onWindowUp);
-        window.removeEventListener('mousemove', this.onWindowMove);
-        window.removeEventListener('touchmove', this.onWindowMove);
-        window.removeEventListener('contextmenu', this.preventContextMenu);
+        window.removeEventListener("mouseup", this.onWindowUp);
+        window.removeEventListener("touchend", this.onWindowUp);
+        window.removeEventListener("mousemove", this.onWindowMove);
+        window.removeEventListener("touchmove", this.onWindowMove);
+        window.removeEventListener("contextmenu", this.preventContextMenu);
       },
 
       storeRootNode: function () {
         var element = ReactDOM.findDOMNode(this);
         this.rootNode = element;
 
-        if (typeof this.props.getRef === 'function') {
+        if (typeof this.props.getRef === "function") {
           this.props.getRef(element);
         }
       },
 
       render: function () {
-        var children = this.props.children && this.props.children.map(function (child, index) {
-          var isDragged = this.isDragging() && this.isDraggingFrom() && index === this.state.draggedIndex;
+        var children =
+          this.props.children &&
+          this.props.children.map(
+            function (child, index) {
+              var isDragged =
+                this.isDragging() &&
+                this.isDraggingFrom() &&
+                index === this.state.draggedIndex;
 
-          var draggedStyle = isDragged ? assign({}, child.props.style, this.state.draggedStyle) : child.props.style;
+              var draggedStyle = isDragged
+                ? assign({}, child.props.style, this.state.draggedStyle)
+                : child.props.style;
 
-          var draggedClass = [
-            child.props.className || '',
-            (isDragged ? this.props.draggedClassName : '')
-          ].join(' ');
+              var draggedClass = [
+                child.props.className || "",
+                isDragged ? this.props.draggedClassName : "",
+              ].join(" ");
 
-          return React.cloneElement(
-            isDragged ? this.state.draggedElement : child,
-            {
-              style: draggedStyle,
-              className: draggedClass,
-              onMouseDown: this.onItemDown.bind(this, child.props.onMouseDown, index),
-              onTouchStart: this.onItemDown.bind(this, child.props.onTouchStart, index),
-              'data-dragged': isDragged ? true : null
-            }
+              return React.cloneElement(
+                isDragged ? this.state.draggedElement : child,
+                {
+                  style: draggedStyle,
+                  className: draggedClass,
+                  onMouseDown: this.onItemDown.bind(
+                    this,
+                    child.props.onMouseDown,
+                    index
+                  ),
+                  onTouchStart: this.onItemDown.bind(
+                    this,
+                    child.props.onTouchStart,
+                    index
+                  ),
+                  "data-dragged": isDragged ? true : null,
+                }
+              );
+            }.bind(this)
           );
-        }.bind(this));
 
-        var placeholderElement = this.props.placeholder || this.state.draggedElement;
+        var placeholderElement =
+          this.props.placeholder || this.state.draggedElement;
 
         if (this.isPlacing() && this.isPlacingTo() && placeholderElement) {
-          var placeholder = React.cloneElement(
-            placeholderElement,
-            {
-              key: 'react-reorder-placeholder',
-              className: [placeholderElement.props.className || '', this.props.placeholderClassName].join(' '),
-              'data-placeholder': true
-            }
-          );
+          var placeholder = React.cloneElement(placeholderElement, {
+            key: "react-reorder-placeholder",
+            className: [
+              placeholderElement.props.className || "",
+              this.props.placeholderClassName,
+            ].join(" "),
+            "data-placeholder": true,
+          });
 
           children.splice(this.state.placedIndex, 0, placeholder);
         }
@@ -758,12 +876,11 @@
             className: this.props.className,
             id: this.props.id,
             style: this.props.style,
-            onClick: this.props.onClick
+            onClick: this.props.onClick,
           },
           children
         );
-      }
-
+      },
     });
 
     Reorder.propTypes = {
@@ -782,16 +899,16 @@
       autoScroll: PropTypes.bool,
       autoScrollParents: PropTypes.bool,
       disabled: PropTypes.bool,
-      disableContextMenus: PropTypes.bool
+      disableContextMenus: PropTypes.bool,
     };
 
     Reorder.defaultProps = {
-      component: 'div',
+      component: "div",
       // getRef: function,
       // reorderId: id,
       // reorderGroup: group,
-      placeholderClassName: 'placeholder',
-      draggedClassName: 'dragged',
+      placeholderClassName: "placeholder",
+      draggedClassName: "dragged",
       // lock: direction,
       holdTime: 0,
       // touchHoldTime: 0,
@@ -801,51 +918,64 @@
       autoScroll: true,
       autoScrollParents: true,
       disabled: false,
-      disableContextMenus: true
+      disableContextMenus: true,
     };
 
     return Reorder;
-
   }
 
   /* istanbul ignore next */
 
   // Export for commonjs / browserify
-  if (typeof exports === 'object' && typeof module !== 'undefined') {
-    var React = require('react'); // eslint-disable-line no-undef
-    var ReactDOM = require('react-dom'); // eslint-disable-line no-undef
-    var createReactClass = require('create-react-class'); // eslint-disable-line no-undef
-    var PropTypes = require('prop-types'); // eslint-disable-line no-undef
-    module.exports = withReorderMethods( // eslint-disable-line no-undef
+  if (typeof exports === "object" && typeof module !== "undefined") {
+    var React = require("react"); // eslint-disable-line no-undef
+    var ReactDOM = require("react-dom"); // eslint-disable-line no-undef
+    var createReactClass = require("create-react-class"); // eslint-disable-line no-undef
+    var PropTypes = require("prop-types"); // eslint-disable-line no-undef
+    module.exports = withReorderMethods(
+      // eslint-disable-line no-undef
       getReorderComponent(React, ReactDOM, createReactClass, PropTypes)
     );
-  // Export for amd / require
-  } else if (typeof define === 'function' && define.amd) { // eslint-disable-line no-undef
-    define( // eslint-disable-line no-undef
-      ['react', 'react-dom', 'create-react-class', 'prop-types'],
-      function (ReactAMD, ReactDOMAMD, createReactClassAMD, PropTypesAMD) {
-        return withReorderMethods(
-          getReorderComponent(ReactAMD, ReactDOMAMD, createReactClassAMD, PropTypesAMD)
-        );
-      }
-    );
-  // Export globally
+    // Export for amd / require
+  } else if (typeof define === "function" && define.amd) {
+    // eslint-disable-line no-undef
+    define(// eslint-disable-line no-undef
+    ["react", "react-dom", "create-react-class", "prop-types"], function (
+      ReactAMD,
+      ReactDOMAMD,
+      createReactClassAMD,
+      PropTypesAMD
+    ) {
+      return withReorderMethods(
+        getReorderComponent(
+          ReactAMD,
+          ReactDOMAMD,
+          createReactClassAMD,
+          PropTypesAMD
+        )
+      );
+    });
+    // Export globally
   } else {
     var root;
 
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       root = window;
-    } else if (typeof global !== 'undefined') {
+    } else if (typeof global !== "undefined") {
       root = global; // eslint-disable-line no-undef
-    } else if (typeof self !== 'undefined') {
+    } else if (typeof self !== "undefined") {
       root = self; // eslint-disable-line no-undef
     } else {
       root = this;
     }
 
     root.Reorder = withReorderMethods(
-      getReorderComponent(root.React, root.ReactDOM, root.createReactClass, root.PropTypes)
+      getReorderComponent(
+        root.React,
+        root.ReactDOM,
+        root.createReactClass,
+        root.PropTypes
+      )
     );
   }
-
 })();
